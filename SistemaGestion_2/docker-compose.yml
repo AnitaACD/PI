@@ -1,0 +1,38 @@
+services:
+  flask_app:
+    build: .
+    container_name: sistema_gestion_flask
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - sqlserver
+    networks:
+      - sistema_network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sistema_gestion_sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_PID: "Express"
+    ports:
+      - "14334:1433" 
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - sistema_network
+
+volumes:
+  sqlserver_data:
+
+networks:
+  sistema_network:
+    driver: bridge
