@@ -1,4 +1,3 @@
-# db.py
 import os
 import pyodbc
 
@@ -9,5 +8,11 @@ password = os.getenv('DB_PASSWORD', 'SqlServer@123')
 driver = "ODBC Driver 17 for SQL Server"
 conn_str = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};UID={username};PWD={password}"
 
-conn = pyodbc.connect(conn_str, autocommit=True)
-cursor = conn.cursor()
+try:
+    conn = pyodbc.connect(conn_str, autocommit=True, timeout=30)
+    cursor = conn.cursor()
+    print("Conexión exitosa a SQL Server")
+except Exception as e:
+    print(f"Error de conexión: {e}")
+    conn = None
+    cursor = None
