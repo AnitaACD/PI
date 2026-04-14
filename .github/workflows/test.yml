@@ -29,7 +29,8 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install flask pytest pyodbc
+          pip install pytest
+          pip install -r SistemaGestion_2/requirements.txt
 
       - name: Correr pruebas
         run: pytest tests/ -v
