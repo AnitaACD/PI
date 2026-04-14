@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Clonar repo
         uses: actions/checkout@v3
@@ -20,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Build imagen
-        run: docker build -t tuusuario/pi-app .
+        run: docker build --no-cache -t ${{ secrets.DOCKER_USER }}/pi-app ./SistemaGestion_2
 
       - name: Push imagen
-        run: docker push tuusuario/pi-app
+        run: docker push ${{ secrets.DOCKER_USER }}/pi-app
