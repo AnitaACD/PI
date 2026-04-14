@@ -1,20 +1,16 @@
-services:
-  flask_app:
-    build: .
-    container_name: sistema_gestion_flask
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - sqlserver
-    networks:
-      - sistema_network
+version: '3.9'
 
+networks:
+  sistema_network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+  sqlserver_backups:
+
+services:
+
+  # ── SQL Server ───────────────────────────
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: sistema_gestion_sqlserver
@@ -24,15 +20,61 @@ services:
       SA_PASSWORD: ${SA_PASSWORD}
       MSSQL_PID: "Express"
     ports:
-      - "14334:1433" 
+      - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
+      - sqlserver_backups:/backups
+    networks:
+      - sistema_network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost",
+             "-U", "sa", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ── Flask App ────────────────────────────
+  flask_app:
+    build: .
+    container_name: sistema_gestion_flask
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      FLASK_ENV: production
+      DB_HOST: sqlserver
+      DB_PORT: 1433
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     networks:
       - sistema_network
 
-volumes:
-  sqlserver_data:
-
-networks:
-  sistema_network:
-    driver: bridge
+  # ── Backup automático ────────────────────
+  backup:
+    image: mcr.microsoft.com/mssql-tools
+    container_name: sistema_gestion_backup
+    restart: unless-stopped
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      DB_NAME: ${DB_NAME:-GestionActivos}
+    volumes:
+      - sqlserver_backups:/backups
+    networks:
+      - sistema_network
+    entrypoint: >
+      sh -c "while true; do
+        /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P $$SA_PASSWORD
+        -Q \"BACKUP DATABASE [$$DB_NAME]
+             TO DISK='/backups/backup_$$(date +%Y%m%d_%H%M%S).bak'
+             WITH FORMAT, COMPRESSION\"
+        && echo '✅ Backup OK'
+        || echo '❌ Backup falló';
+        find /backups -name '*.bak' -mtime +7 -delete;
+        sleep 86400;
+      done"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
