@@ -1,38 +1,4 @@
-# app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, abort
-import db  # tu archivo de conexión a la DB
-import os
-from werkzeug.utils import secure_filename
-import qrcode
-from datetime import datetime, timedelta
-from flask_cors import CORS
-import secrets
-import uuid
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import logging
-import re
-from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.secret_key = "seguridad"
-
-# Cargar variables de entorno
-load_dotenv()
-
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-CORS(app)
-
-UPLOAD_FOLDER = 'static/img_personas'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # crea carpeta si no existe
-
-UPLOAD_ACTIVOS = 'static/img_activos'
-os.makedirs(UPLOAD_ACTIVOS, exist_ok=True)
 
 # =========================================
 # LOGIN
