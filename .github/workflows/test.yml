@@ -20,9 +20,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Instalar ODBC Driver
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev
+
       - name: Instalar dependencias
         run: |
-          pip install flask pytest
+          pip install flask pytest pyodbc
 
       - name: Correr pruebas
         run: pytest tests/ -v
