@@ -13,8 +13,8 @@ ENV/
 .env
 .env.local
 
-# Base de datos Docker
-mysql_data/
+# Base de datos
+sqlserver_data/
 
 # Archivos del sistema
 .DS_Store
@@ -27,15 +27,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# Archivos subidos (opcional, si quieres mantener las imágenes)
-# static/img_activos/*
-# static/img_personas/*
-# static/qr_activos/*
-
-# Mantener las carpetas vacías
+# Archivos subidos
+static/img_activos/*
+static/img_personas/*
+static/qr_activos/*
 !static/img_activos/.gitkeep
 !static/img_personas/.gitkeep
-!static/qr_activos/.gitkeep".env" 
-"venv/" 
-"__pycache__/" 
-"*.pyc" 
+!static/qr_activos/.gitkeep

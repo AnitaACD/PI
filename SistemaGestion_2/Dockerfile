@@ -13,10 +13,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+# Usuario no privilegiado (evita ejecutar como root)
+RUN adduser --disabled-password --gecos '' --uid 1001 appuser && \
+    chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 5000
 

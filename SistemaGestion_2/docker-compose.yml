@@ -4,12 +4,8 @@ services:
     container_name: sistema_gestion_flask
     ports:
       - "5000:5000"
-    volumes:
-      - .:/app
     env_file:
       - .env
-    environment:
-      - FLASK_ENV=development
     depends_on:
       - sqlserver
     networks:
@@ -24,7 +20,7 @@ services:
       SA_PASSWORD: ${SA_PASSWORD}
       MSSQL_PID: "Express"
     ports:
-      - "14334:1433" 
+      - "127.0.0.1:14335:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
